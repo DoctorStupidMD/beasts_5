@@ -1,0 +1,101 @@
+<script src="./simpletest.js"></script>
+<script>
+
+// Syntax: 
+  // isPrototypeOf(prototypeObj, object)
+
+// Parameters:
+  // prototypeObj
+  // object
+
+// Return Value:
+  // A Boolean indicating whether the calling object lies in the prototype chain of 
+  // the specified object.
+
+// Edge case:
+  // It should throw a TypeError if prototypeObj is undefined or null. 
+
+// Test descriptions:
+  // If first argument exists as a prototype in second argument\'s prototype chain, it should return true.
+  // If first argument does not exist as a prototype in second argument\'s prototype chain, it should return false.
+  // If the second argument is null or undefined, it should return false.
+  // It should return false if ECMAScript language types are not objects.
+  // It should return true if ECMAScript language types are objects.
+  // It should throw TypeError if first argument is not an object.
+  // It should throw TypeError if first argument is undefined or null. 
+
+
+function isPrototypeOf(prototypeObj, uniqueObject) {
+  // Error handling.
+  if (typeof prototypeObj === null || typeof prototypeObj === undefined) {
+    throw new TypeError('Cannot read property \'isPrototypeOf\' of null or undefined.');
+  }
+
+  // Base case #1 (with ECMAScript language type checks).
+  if (uniqueObject === null || 
+    uniqueObject === undefined || 
+    typeof uniqueObject === 'boolean' || 
+    typeof uniqueObject === 'string' || 
+    typeof uniqueObject === 'symbol' || 
+    typeof uniqueObject === 'number') {
+    return false;
+  }
+
+  // Base case #2 (ECMAScript language types: object, function, and array are acceptable). 
+  var prototypeMatch = Object.getPrototypeOf(uniqueObject);
+
+  if (prototypeMatch === prototypeObj) {
+    return true;
+
+  // Recursive case.
+  } else {
+    return isPrototypeOf(prototypeObj, prototypeMatch);
+  }
+}
+
+
+tests({
+  'If first argument exists as a prototype in second argument\'s prototype chain, it should return true.': function() {
+    var testPrototype = {};
+    var testObject = Object.create(testPrototype);
+    eq(isPrototypeOf(testPrototype, testObject), true);
+  },
+  'If first argument does not exist as a prototype in second argument\'s prototype chain, it should return false.': function() {
+    var testPrototype = {};
+    var testObject = {};
+    eq(isPrototypeOf(testPrototype, testObject), false);
+  },
+  'If the second argument is null or undefined, it should return false.': function() {
+    var testPrototype = {};
+    var testObject1 = null;
+    var testObject2 = undefined;
+    eq(isPrototypeOf(testObject1), false);
+    eq(isPrototypeOf(testObject2), false);
+  },
+  'It should return false if ECMAScript language types are not objects.': function() {
+    eq(isPrototypeOf(Boolean.prototype, true), false);
+    eq(isPrototypeOf(String.prototype, ''), false);
+    eq(isPrototypeOf(Number.prototype, 1), false);
+    // No check available for symbol language type.
+  },
+  'It should return true if ECMAScript language types are objects.': function() {
+    eq(isPrototypeOf(Array.prototype, []), true);
+    eq(isPrototypeOf(Function.prototype, function() {}), true);
+    eq(isPrototypeOf(Object.prototype, {}), true);
+  },
+  'It should throw TypeError if first argument is null.': function() {
+    try {
+      isPrototypeOf(null);
+    } catch(e) {
+      eq(e instanceof TypeError, true);
+    }
+  },
+  'It should throw TypeError if first argument is undefined.': function() {
+    try {
+      isPrototypeOf(undefined);
+    } catch(e) {
+      eq(e instanceof TypeError, true);
+    }
+  }
+});
+</script>
